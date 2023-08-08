@@ -1,7 +1,11 @@
+import shutil
+
 import sys
 from pathlib import Path
 
 import pytest
+
+from src.local_neighborhood import LocalNeighborhood
 
 from src.util import compare_files
 
@@ -47,3 +51,18 @@ class TestLocalNeighborhood:
                                output_file=OUT_FILE)
 
     # Write tests for the Local Neighborhood run function here
+
+    @pytest.mark.skipif(not shutil.which('singularity'), reason='Singularity not found on system')
+    def test_ln_required(self):
+        out_path = Path(OUT_FILE)
+        out_path.unlink(missing_ok=True)
+        # Only include required arguments
+        print(Path(TEST_DIR, 'input', 'ln-nodes.txt'))
+        print(Path(TEST_DIR, 'input', 'ln-network.txt'))
+        print(OUT_FILE)
+        LocalNeighborhood.run(
+            nodes_file=Path(TEST_DIR, 'input', 'ln-nodes.txt'),
+            network_file=Path(TEST_DIR, 'input', 'ln-network.txt'),
+            output_file=OUT_FILE
+        )
+        assert out_path.exists()
