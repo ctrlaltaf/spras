@@ -70,7 +70,7 @@
                 run1:
                     flow: [1] # The flow must be an int
                     capacity: [1]
-                  
+
         - name: "local_neighborhood"
           params:
                 include: true
