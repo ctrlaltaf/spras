@@ -1,10 +1,9 @@
-from src.util import prepare_volume, run_container
+from pathlib import Path
 
 import pandas as pd
 
-from pathlib import Path
-
 from src.prm import PRM
+from src.util import prepare_volume, run_container
 
 __all__ = ["LocalNeighborhood"]
 

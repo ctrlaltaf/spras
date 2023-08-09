@@ -1,12 +1,10 @@
 import shutil
-
 import sys
 from pathlib import Path
 
 import pytest
 
 from src.local_neighborhood import LocalNeighborhood
-
 from src.util import compare_files
 
 # TODO consider refactoring to simplify the import

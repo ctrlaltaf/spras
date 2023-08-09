@@ -136,7 +136,7 @@ jobs:
         tags: latest
         cache_froms: ctrlaltaf/local-neighborhood:latest
         push: false
-        
+
 
   # Run pre-commit checks on source files
   pre-commit:
