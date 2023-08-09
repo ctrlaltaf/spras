@@ -24,9 +24,9 @@ class TestLocalNeighborhood:
 
     def test_ln(self):
         OUT_FILE.unlink(missing_ok=True)
-        LocalNeighborhood(
-            network_file=Path(TEST_DIR, "input", "ln-network.txt"),
+        LocalNeighborhood.run(
             nodes_file=Path(TEST_DIR, "input", "ln-nodes.txt"),
+            network_file=Path(TEST_DIR, "input", "ln-network.txt"),
             output_file=OUT_FILE,
         )
         assert OUT_FILE.exists(), "Output file was not written"
@@ -41,9 +41,9 @@ class TestLocalNeighborhood:
 
     def test_missing_file(self):
         with pytest.raises(OSError):
-            LocalNeighborhood(
-                network_file=Path(TEST_DIR, "input", "missing.txt"),
+            LocalNeighborhood.run(
                 nodes_file=Path(TEST_DIR, "input", "ln-nodes.txt"),
+                network_file=Path(TEST_DIR, "input", "missing.txt"),
                 output_file=OUT_FILE,
             )
 
@@ -53,9 +53,9 @@ class TestLocalNeighborhood:
 
     def test_format_error(self):
         with pytest.raises(ValueError):
-            LocalNeighborhood(
-                network_file=Path(TEST_DIR, "input", "ln-bad-network.txt"),
+            LocalNeighborhood.run(
                 nodes_file=Path(TEST_DIR, "input", "ln-nodes.txt"),
+                network_file=Path(TEST_DIR, "input", "ln-bad-network.txt"),
                 output_file=OUT_FILE,
             )
 
