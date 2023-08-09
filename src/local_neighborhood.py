@@ -78,8 +78,14 @@ class LocalNeighborhood(PRM):
         bind_path, network_file = prepare_volume(network, work_dir)
         volumes.append(bind_path)
 
-        bind_path, bound_output_file = prepare_volume(output_file, work_dir)
+        # PathLinker does not provide an argument to set the output directory
+        # Use its --output argument to set the output file prefix to specify an absolute path and prefix
+        out_dir = Path(output_file).parent
+        # PathLinker requires that the output directory exist
+        out_dir.mkdir(parents=True, exist_ok=True)
+        bind_path, mapped_out_dir = prepare_volume(str(out_dir), work_dir)
         volumes.append(bind_path)
+        mapped_out_prefix = mapped_out_dir + '/out'  # Use posix path inside the container
 
         command = [
             "python",
@@ -89,7 +95,7 @@ class LocalNeighborhood(PRM):
             "--nodes",
             node_file,
             "--output",
-            bound_output_file,
+            mapped_out_prefix,
         ]
 
         print(
@@ -107,6 +113,11 @@ class LocalNeighborhood(PRM):
             work_dir,
         )
         print(out)
+        # Rename the primary output file to match the desired output filename
+        # Currently PathLinker only writes one output file so we do not need to delete others
+        # We may not know the value of k that was used
+        output_edges = Path(out_dir, 'out')
+        output_edges.rename(output_file)
 
     @staticmethod
     def parse_output(raw_pathway_file, standardized_pathway_file):
