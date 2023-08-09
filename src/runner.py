@@ -1,4 +1,5 @@
 from src.dataset import Dataset
+from src.local_neighborhood import LocalNeighborhood as local_neighborhood
 
 # supported algorithm imports
 from src.meo import MEO as meo
@@ -15,7 +16,7 @@ def run(algorithm, params):
     try:
         algorithm_runner = globals()[algorithm.lower()]
     except KeyError as exc:
-        raise NotImplementedError(f'{algorithm} is not currently supported') from exc
+        raise NotImplementedError(f"{algorithm} is not currently supported") from exc
     algorithm_runner.run(**params)
 
 
@@ -28,7 +29,7 @@ def get_required_inputs(algorithm):
     try:
         algorithm_runner = globals()[algorithm.lower()]
     except KeyError as exc:
-        raise NotImplementedError(f'{algorithm} is not currently supported') from exc
+        raise NotImplementedError(f"{algorithm} is not currently supported") from exc
     return algorithm_runner.required_inputs
 
 
@@ -54,7 +55,7 @@ def prepare_inputs(algorithm, data_file, filename_map):
     try:
         algorithm_runner = globals()[algorithm.lower()]
     except KeyError as exc:
-        raise NotImplementedError(f'{algorithm} is not currently supported') from exc
+        raise NotImplementedError(f"{algorithm} is not currently supported") from exc
     return algorithm_runner.generate_inputs(dataset, filename_map)
 
 
@@ -68,5 +69,5 @@ def parse_output(algorithm, raw_pathway_file, standardized_pathway_file):
     try:
         algorithm_runner = globals()[algorithm.lower()]
     except KeyError as exc:
-        raise NotImplementedError(f'{algorithm} is not currently supported') from exc
+        raise NotImplementedError(f"{algorithm} is not currently supported") from exc
     return algorithm_runner.parse_output(raw_pathway_file, standardized_pathway_file)
