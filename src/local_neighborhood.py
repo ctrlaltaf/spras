@@ -10,7 +10,7 @@ __all__ = ["LocalNeighborhood"]
 
 
 class LocalNeighborhood(PRM):
-    required_inputs = ["network", "nod˚es"]
+    required_inputs = ["network", "nodes"]
 
     def generate_inputs(data, filename_map):
         """

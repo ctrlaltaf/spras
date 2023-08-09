@@ -63,9 +63,7 @@ class TestLocalNeighborhood:
 
     # Write tests for the Local Neighborhood run function here
 
-    @pytest.mark.skipif(
-        not shutil.which("singularity"), reason="Singularity not found on system"
-    )
+    @pytest.mark.skipif(not shutil.which('singularity'), reason='Singularity not found on system')
     def test_ln_required(self):
         out_path = Path(OUT_FILE)
         out_path.unlink(missing_ok=True)
