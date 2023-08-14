@@ -89,6 +89,10 @@ class PathLinker(PRM):
                    node_file,
                    '--output', mapped_out_prefix]
 
+        # Add optional argument
+        if k is not None:
+            command.extend(['-k', str(k)])
+
         print('Running PathLinker with arguments: {}'.format(' '.join(command)), flush=True)
 
         # TODO consider making this a string in the config file instead of a Boolean
