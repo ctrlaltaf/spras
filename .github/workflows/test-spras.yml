@@ -81,7 +81,12 @@ jobs:
         docker pull reedcompbio/pathlinker:latest
         docker pull reedcompbio/meo:latest
         docker pull reedcompbio/mincostflow:latest
+<<<<<<< HEAD
         docker pull ctrlaltaf/local-neighborhood:latest
+=======
+        docker pull reedcompbio/allpairs:latest
+        docker pull reedcompbio/domino:latest
+>>>>>>> master
     - name: Build Omics Integrator 1 Docker image
       uses: docker/build-push-action@v1
       with:
@@ -127,6 +132,7 @@ jobs:
         tags: latest
         cache_froms: reedcompbio/mincostflow:latest
         push: false
+<<<<<<< HEAD
     - name: Build LocalNeighborhood Docker Image
       uses: docker/build-push-action@v1
       with:
@@ -137,6 +143,26 @@ jobs:
         cache_froms: ctrlaltaf/local-neighborhood:latest
         push: false
 
+=======
+    - name: Build All Pairs Shortest Paths Docker image
+      uses: docker/build-push-action@v1
+      with:
+        path: docker-wrappers/AllPairs/.
+        dockerfile: docker-wrappers/AllPairs/Dockerfile
+        repository: reedcompbio/allpairs
+        tags: latest
+        cache_froms: reedcompbio/allpairs:latest
+        push: false
+    - name: Build DOMINO Docker image
+      uses: docker/build-push-action@v1
+      with:
+        path: docker-wrappers/DOMINO/.
+        dockerfile: docker-wrappers/DOMINO/Dockerfile
+        repository: reedcompbio/domino
+        tags: latest
+        cache_froms: reedcompbio/domino:latest
+        push: false
+>>>>>>> master
 
   # Run pre-commit checks on source files
   pre-commit:

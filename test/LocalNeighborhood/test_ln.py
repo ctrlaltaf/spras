@@ -1,5 +1,6 @@
 import shutil
 import sys
+from filecmp import cmp
 from pathlib import Path
 
 import pytest
