@@ -74,16 +74,21 @@
 
         - name: "allpairs"
           params:
-                include: true
+                include: false
                 directed: false
 
         - name: "domino"
           params:
-                include: true
+                include: false
                 directed: false
                 run1:
                     slice_threshold: [0.3]
                     module_threshold: [0.05]
+
+        - name: "localneighborhood"
+          params:
+                include: true
+                directed: false
 
 
  # Here we specify which pathways to run and other file location information.
@@ -128,7 +133,7 @@
           include: true
         # Create output files for each pathway that can be visualized with GraphSpace
         graphspace:
-          include: false
+          include: true
         # Machine learning analysis (e.g. clustering) of the pathway output files for each dataset
         ml:
           include: false
