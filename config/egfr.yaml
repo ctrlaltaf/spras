@@ -24,7 +24,6 @@ algorithms:
           - 2
           - 10
         d:
-          - 10
         g:
           - 1e-3
         r:

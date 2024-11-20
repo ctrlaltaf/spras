@@ -400,6 +400,7 @@ rule evaluation:
         Evaluation.precision_recall_curve_node_ensemble(node_ensemble, node_table, output.pr_curve_png)
         pca_chosen_pathway = Evaluation.pca_chosen_pathway(input.pca_coordinates_file, out_dir)
         Evaluation.precision_and_recall(pca_chosen_pathway, node_table, algorithms, output.pca_chosen_pr_file)
+        print("TESTINGGGGGG")
 
 # Returns all pathways for a specific algorithm and dataset
 def collect_pathways_per_algo_per_dataset(wildcards):
