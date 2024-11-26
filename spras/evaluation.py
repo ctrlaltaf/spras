@@ -93,12 +93,9 @@ class Evaluation:
         @param output_file: the filename to save the precision and recall of each pathway
         @param output_png (optional): the filename to plot the precision and recall of each pathway (not a PRC)
         """
-        print("TESTINGGG")
-        print()
         gs_edges = set()
         for row in edge_table.itertuples():
             gs_edges.add((row[1], row[2]))
-        print(f"gs_edges = {gs_edges}")
         results = []
         for file in file_paths:
             df = pd.read_table(file, sep="\t", header=0, usecols=["Node1", "Node2"])
@@ -107,31 +104,22 @@ class Evaluation:
             y_pred = set()
             for row in df.itertuples():
                 y_pred.add((row[1], row[2]))
-            print(f"y_pred = {y_pred}")
             all_edges = set(gs_edges.union(y_pred))
-            print(f"all_edges = {all_edges}")
             y_true_binary = [1 if (edge[0], edge[1]) in gs_edges or (edge[1], edge[0]) in gs_edges else 0 for edge in all_edges]
             y_pred_binary = [1 if (edge[0], edge[1]) in y_pred or (edge[1], edge[0]) in y_pred else 0 for edge in all_edges]
-            print(f"y_true_binary = {y_true_binary}")
-            print(f"y_pred_binary = {y_pred_binary}")
 
             # # default to 0.0 if there is a divide by 0 error
             # # not using precision_recall_curve because thresholds are binary (0 or 1); rather we are directly calculating precision and recall per pathway
             precision = precision_score(y_true_binary, y_pred_binary, zero_division=0.0)
             recall = recall_score(y_true_binary, y_pred_binary, zero_division=0.0)
             results.append({"Pathway": file, "Precision": precision, "Recall": recall})
-            print("")       
         
         pr_df = pd.DataFrame(results)
         pr_df.sort_values(by=["Recall", "Pathway"], axis=0, ascending=True, inplace=True)
-        split_path = output_file.split(".")
-        edge_output_file = split_path[0] + "_edge." + split_path[1]
-        pr_df.to_csv(edge_output_file, sep="\t", index=False)
+        pr_df.to_csv(output_file, sep="\t", index=False)
 
         num_of_algorithms_used = 0
         if output_png is not None:
-            split_png_path = output_png.split(".")
-            edge_output_png = split_png_path[0] + "_edge." + split_png_path[1]
             if not pr_df.empty:
                 plt.figure(figsize=(8, 6))
                 # plot a line per algorithm
@@ -156,12 +144,12 @@ class Evaluation:
                 plt.title(f"Precision and Recall Plot")
                 plt.legend()
                 plt.grid(True)
-                plt.savefig(edge_output_png)
+                plt.savefig(output_png)
             else:
                 plt.figure()
                 plt.plot([], [])
                 plt.title("Empty Pathway Files")
-                plt.savefig(edge_output_png)
+                plt.savefig(output_png)
 
     @staticmethod
     def precision_and_recall(file_paths: Iterable[Path], node_table: pd.DataFrame, algorithms: list, output_file: str, output_png:str=None):

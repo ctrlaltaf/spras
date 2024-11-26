@@ -391,13 +391,15 @@ rule evaluation:
     output: 
         pr_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "precision-recall-per-pathway.txt"]),
         pr_png = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', 'precision-recall-per-pathway.png']),
+        pr_edge_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "precision-recall-per-pathway_edge.txt"]),
+        pr_edge_png = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', 'precision-recall-per-pathway_edge.png']),
         pr_curve_png = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', 'precision-recall-curve-ensemble-nodes.png']),
         pca_chosen_pr_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "precision-recall-pca-chosen-pathway.txt"]),
     run:
         node_table = Evaluation.from_file(input.gold_standard_file).node_table
         edge_table = Evaluation.from_file(input.gold_standard_file).edge_table
         Evaluation.precision_and_recall(input.pathways, node_table, algorithms, output.pr_file, output.pr_png)
-        Evaluation.precision_and_recall_edge(input.pathways, edge_table, algorithms, output.pr_file, output.pr_png)
+        Evaluation.precision_and_recall_edge(input.pathways, edge_table, algorithms, output.pr_edge_file, output.pr_edge_png)
         node_ensemble = Evaluation.edge_frequency_node_ensemble(input.ensemble_file)
         Evaluation.precision_recall_curve_node_ensemble(node_ensemble, node_table, output.pr_curve_png)
         pca_chosen_pathway = Evaluation.pca_chosen_pathway(input.pca_coordinates_file, out_dir)
