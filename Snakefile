@@ -395,12 +395,15 @@ rule evaluation:
         pca_chosen_pr_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "precision-recall-pca-chosen-pathway.txt"]),
     run:
         node_table = Evaluation.from_file(input.gold_standard_file).node_table
+        edge_table = Evaluation.from_file(input.gold_standard_file).edge_table
         Evaluation.precision_and_recall(input.pathways, node_table, algorithms, output.pr_file, output.pr_png)
+        Evaluation.precision_and_recall_edge(input.pathways, edge_table, algorithms, output.pr_file, output.pr_png)
         node_ensemble = Evaluation.edge_frequency_node_ensemble(input.ensemble_file)
         Evaluation.precision_recall_curve_node_ensemble(node_ensemble, node_table, output.pr_curve_png)
         pca_chosen_pathway = Evaluation.pca_chosen_pathway(input.pca_coordinates_file, out_dir)
         Evaluation.precision_and_recall(pca_chosen_pathway, node_table, algorithms, output.pca_chosen_pr_file)
-        print("TESTINGGGGGG")
+        # Evaluation.precision_and_recall_edge(pca_chosen_pathway, edge_table, algorithms, output.pca_chosen_pr_file)
+
 
 # Returns all pathways for a specific algorithm and dataset
 def collect_pathways_per_algo_per_dataset(wildcards):

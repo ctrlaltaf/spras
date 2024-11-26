@@ -113,6 +113,7 @@ gold_standards:
     -
       label: gs2
       node_files: ["gs_nodes2.txt"]
+      edge_files: ["gs_edges.txt"]
       data_dir: "input"
       dataset_labels: ["data2"]
 
