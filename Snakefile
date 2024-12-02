@@ -389,8 +389,8 @@ rule evaluation:
         ensemble_file=lambda wildcards: f"{out_dir}{SEP}{get_dataset_label(wildcards)}-ml{SEP}ensemble-pathway.txt",
         pca_coordinates_file =lambda wildcards: f"{out_dir}{SEP}{get_dataset_label(wildcards)}-ml{SEP}pca-coordinates.txt"
     output: 
-        pr_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "precision-recall-per-pathway.txt"]),
-        pr_png = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', 'precision-recall-per-pathway.png']),
+        pr_node_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "precision-recall-per-pathway.txt"]),
+        pr_node_png = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', 'precision-recall-per-pathway.png']),
         pr_edge_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "precision-recall-per-pathway_edge.txt"]),
         pr_edge_png = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', 'precision-recall-per-pathway_edge.png']),
         pr_curve_png = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', 'precision-recall-curve-ensemble-nodes.png']),
@@ -398,13 +398,12 @@ rule evaluation:
     run:
         node_table = Evaluation.from_file(input.gold_standard_file).node_table
         edge_table = Evaluation.from_file(input.gold_standard_file).edge_table
-        Evaluation.precision_and_recall(input.pathways, node_table, algorithms, output.pr_file, output.pr_png)
+        Evaluation.precision_and_recall_node(input.pathways, node_table, algorithms, output.pr_node_file, output.pr_node_png)
         Evaluation.precision_and_recall_edge(input.pathways, edge_table, algorithms, output.pr_edge_file, output.pr_edge_png)
         node_ensemble = Evaluation.edge_frequency_node_ensemble(input.ensemble_file)
         Evaluation.precision_recall_curve_node_ensemble(node_ensemble, node_table, output.pr_curve_png)
         pca_chosen_pathway = Evaluation.pca_chosen_pathway(input.pca_coordinates_file, out_dir)
-        Evaluation.precision_and_recall(pca_chosen_pathway, node_table, algorithms, output.pca_chosen_pr_file)
-        # Evaluation.precision_and_recall_edge(pca_chosen_pathway, edge_table, algorithms, output.pca_chosen_pr_file)
+        Evaluation.precision_and_recall_node(pca_chosen_pathway, node_table, algorithms, output.pca_chosen_pr_file)
 
 
 # Returns all pathways for a specific algorithm and dataset
@@ -431,9 +430,13 @@ rule evaluation_per_algo_pathways:
     output: 
         pr_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "{algorithm}-precision-recall-per-pathway.txt"]),
         pr_png = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', '{algorithm}-precision-recall-per-pathway.png']),
+        pr_edge_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "{algorithm}-precision-recall-per-pathway_edge.txt"]),
+        pr_edge_png = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', '{algorithm}-precision-recall-per-pathway_edge.png']),
     run:
         node_table = Evaluation.from_file(input.gold_standard_file).node_table
-        Evaluation.precision_and_recall(input.pathways, node_table, algorithms, output.pr_file, output.pr_png)
+        Evaluation.precision_and_recall_node(input.pathways, node_table, algorithms, output.pr_file, output.pr_png)
+        edge_table = Evaluation.from_file(input.gold_standard_file).edge_table
+        Evaluation.precision_and_recall_edge(input.pathways, edge_table, algorithms, output.pr_edge_file, output.pr_edge_png)
 
 rule evaluation_per_algo_ensemble_pr_curve:
     input: 
@@ -455,7 +458,7 @@ rule evaluation_per_algo_pca_chosen:
     run:
         node_table = Evaluation.from_file(input.gold_standard_file).node_table
         pca_chosen_pathway = Evaluation.pca_chosen_pathway(input.pca_coordinates_file, out_dir)
-        Evaluation.precision_and_recall(pca_chosen_pathway, node_table, algorithms, output.pca_chosen_pr_file)
+        Evaluation.precision_and_recall_node(pca_chosen_pathway, node_table, algorithms, output.pca_chosen_pr_file)
 
 # Remove the output directory
 rule clean:

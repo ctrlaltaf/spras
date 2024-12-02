@@ -84,11 +84,11 @@ class Evaluation:
     @staticmethod
     def precision_and_recall_edge(file_paths: Iterable[Path], edge_table: pd.DataFrame, algorithms: list, output_file: str, output_png:str=None):
         """
-        Takes in file paths for a specific dataset and an associated gold standard node table.
+        Takes in file paths for a specific dataset and an associated gold standard edge table.
         Calculates precision and recall for each pathway file
         Returns output back to output_file
         @param file_paths: file paths of pathway reconstruction algorithm outputs
-        @param node_table: the gold standard nodes
+        @param edge_table: the gold standard edges
         @param algorithms: list of algorithms used in current run of SPRAS
         @param output_file: the filename to save the precision and recall of each pathway
         @param output_png (optional): the filename to plot the precision and recall of each pathway (not a PRC)
@@ -99,17 +99,12 @@ class Evaluation:
         results = []
         for file in file_paths:
             df = pd.read_table(file, sep="\t", header=0, usecols=["Node1", "Node2"])
-            print(file)
-            print(df)
             y_pred = set()
             for row in df.itertuples():
                 y_pred.add((row[1], row[2]))
             all_edges = set(gs_edges.union(y_pred))
             y_true_binary = [1 if (edge[0], edge[1]) in gs_edges or (edge[1], edge[0]) in gs_edges else 0 for edge in all_edges]
             y_pred_binary = [1 if (edge[0], edge[1]) in y_pred or (edge[1], edge[0]) in y_pred else 0 for edge in all_edges]
-
-            # # default to 0.0 if there is a divide by 0 error
-            # # not using precision_recall_curve because thresholds are binary (0 or 1); rather we are directly calculating precision and recall per pathway
             precision = precision_score(y_true_binary, y_pred_binary, zero_division=0.0)
             recall = recall_score(y_true_binary, y_pred_binary, zero_division=0.0)
             results.append({"Pathway": file, "Precision": precision, "Recall": recall})
@@ -152,7 +147,7 @@ class Evaluation:
                 plt.savefig(output_png)
 
     @staticmethod
-    def precision_and_recall(file_paths: Iterable[Path], node_table: pd.DataFrame, algorithms: list, output_file: str, output_png:str=None):
+    def precision_and_recall_node(file_paths: Iterable[Path], node_table: pd.DataFrame, algorithms: list, output_file: str, output_png:str=None):
         """
         Takes in file paths for a specific dataset and an associated gold standard node table.
         Calculates precision and recall for each pathway file
