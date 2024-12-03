@@ -12,6 +12,7 @@ from sklearn.metrics import (
     precision_score,
     recall_score,
 )
+import seaborn as sns
 
 
 class Evaluation:
@@ -209,6 +210,54 @@ class Evaluation:
                 plt.plot([], [])
                 plt.title("Empty Pathway Files")
                 plt.savefig(output_png)
+
+
+    @staticmethod
+    def jaccard_edge_heatmap(file_paths: Iterable[Path], edge_table: pd.DataFrame, algorithms: list, output_file: str, output_png:str=None):
+        """
+        Takes in file paths for a specific dataset and an associated gold standard edge table.
+        Calculates precision and recall for each pathway file
+        Returns output back to output_file
+        @param file_paths: file paths of pathway reconstruction algorithm outputs
+        @param edge_table: the gold standard edges
+        @param algorithms: list of algorithms used in current run of SPRAS
+        @param output_file: the filename to save the precision and recall of each pathway
+        @param output_png (optional): the filename to plot the precision and recall of each pathway (not a PRC)
+        """
+        print("jaccard_heatmap")
+
+        gs_edges = set()
+        for row in edge_table.itertuples():
+            gs_edges.add((row[1], row[2]))
+        # calculate all the jaccard edge index for each method against the gs
+        jaccard_edges_indices_list = []
+        algs = []
+        for file in file_paths:
+            df = pd.read_table(file, sep="\t", header=0, usecols=["Node1", "Node2"])
+            method_edges = set()
+            for row in df.itertuples():
+                method_edges.add((row[1], row[2]))
+            edge_union = gs_edges | method_edges
+            edge_intersection = gs_edges & method_edges
+            jaccard_edge_index = len(edge_intersection) / len(edge_union)
+            jaccard_edges_indices_list.append(float(jaccard_edge_index))
+            algs.append(file.split("/")[1].split("-")[1])
+
+        jaccard_edges_indices = np.asanyarray([jaccard_edges_indices_list])
+
+        print(algs)
+
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(
+            jaccard_edges_indices,
+            annot=True,
+            cmap="viridis",
+            yticklabels=["Pathways"],
+            xticklabels=algs,
+        )
+        plt.xlabel("Algorithms")
+        plt.title("Jaccard Index Edge Heatmap")
+        plt.savefig(output_png, format="png", dpi=300)
 
 
     def select_max_freq_and_node(row: pd.Series):

@@ -128,7 +128,7 @@ gold_standards:
       dataset_labels: ["data0"]
     -
       label: gs1
-      node_files: ["gs_nodes1.txt"]
+      node_files: ["gs_nodes1.txt"] # why list?
       data_dir: "input"
       dataset_labels: ["data1", "data0"]
 
