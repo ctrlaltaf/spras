@@ -94,17 +94,17 @@ class Evaluation:
         @param output_file: the filename to save the precision and recall of each pathway
         @param output_png (optional): the filename to plot the precision and recall of each pathway (not a PRC)
         """
-        gs_edges = set()
+        y_true = set()
         for row in edge_table.itertuples():
-            gs_edges.add((row[1], row[2]))
+            y_true.add((row[1], row[2]))
         results = []
         for file in file_paths:
             df = pd.read_table(file, sep="\t", header=0, usecols=["Node1", "Node2"])
             y_pred = set()
             for row in df.itertuples():
                 y_pred.add((row[1], row[2]))
-            all_edges = set(gs_edges.union(y_pred))
-            y_true_binary = [1 if (edge[0], edge[1]) in gs_edges or (edge[1], edge[0]) in gs_edges else 0 for edge in all_edges]
+            all_edges = set(y_true.union(y_pred))
+            y_true_binary = [1 if (edge[0], edge[1]) in y_true or (edge[1], edge[0]) in y_true else 0 for edge in all_edges]
             y_pred_binary = [1 if (edge[0], edge[1]) in y_pred or (edge[1], edge[0]) in y_pred else 0 for edge in all_edges]
             precision = precision_score(y_true_binary, y_pred_binary, zero_division=0.0)
             recall = recall_score(y_true_binary, y_pred_binary, zero_division=0.0)
@@ -211,27 +211,23 @@ class Evaluation:
                 plt.title("Empty Pathway Files")
                 plt.savefig(output_png)
 
-
     @staticmethod
-    def jaccard_edge_heatmap(file_paths: Iterable[Path], edge_table: pd.DataFrame, algorithms: list, output_file: str, output_png:str=None):
+    def jaccard_edge_heatmap(file_paths: Iterable[Path], edge_table: pd.DataFrame, output_png:str=None):
         """
         Takes in file paths for a specific dataset and an associated gold standard edge table.
-        Calculates precision and recall for each pathway file
-        Returns output back to output_file
+        Generates a jaccard index heatmap image that compares all the edge similarity between each dataset and the gold standard
+        Returns output back to output_png
         @param file_paths: file paths of pathway reconstruction algorithm outputs
         @param edge_table: the gold standard edges
-        @param algorithms: list of algorithms used in current run of SPRAS
-        @param output_file: the filename to save the precision and recall of each pathway
-        @param output_png (optional): the filename to plot the precision and recall of each pathway (not a PRC)
+        @param output_png (optional): the filename to plot the heatmap (not a PRC)
         """
-        print("jaccard_heatmap")
-
         gs_edges = set()
         for row in edge_table.itertuples():
             gs_edges.add((row[1], row[2]))
-        # calculate all the jaccard edge index for each method against the gs
-        jaccard_edges_indices_list = []
-        algs = []
+        
+        # calculate all the jaccard edge index for each method against the gold standard
+        jaccard_edge_indices_list = []
+        algorithms = []
         for file in file_paths:
             df = pd.read_table(file, sep="\t", header=0, usecols=["Node1", "Node2"])
             method_edges = set()
@@ -240,25 +236,68 @@ class Evaluation:
             edge_union = gs_edges | method_edges
             edge_intersection = gs_edges & method_edges
             jaccard_edge_index = len(edge_intersection) / len(edge_union)
-            jaccard_edges_indices_list.append(float(jaccard_edge_index))
-            algs.append(file.split("/")[1].split("-")[1])
+            jaccard_edge_indices_list.append(float(jaccard_edge_index))
+            algorithms.append(file.split("/")[1].split("-")[1])
 
-        jaccard_edges_indices = np.asanyarray([jaccard_edges_indices_list])
-
-        print(algs)
+        jaccard_edge_indices = np.asanyarray([jaccard_edge_indices_list])
 
         plt.figure(figsize=(10, 8))
         sns.heatmap(
-            jaccard_edges_indices,
+            jaccard_edge_indices,
             annot=True,
             cmap="viridis",
-            yticklabels=["Pathways"],
-            xticklabels=algs,
+            xticklabels=algorithms,
+            yticklabels=[""],
         )
         plt.xlabel("Algorithms")
+        plt.ylabel("Pathways")
         plt.title("Jaccard Index Edge Heatmap")
+        plt.tick_params(axis='x', which='major', labelsize=7.5)
         plt.savefig(output_png, format="png", dpi=300)
 
+    @staticmethod
+    def jaccard_node_heatmap(file_paths: Iterable[Path], node_table: pd.DataFrame, output_png:str=None):
+        """
+        Takes in file paths for a specific dataset and an associated gold standard nodes table.
+        Generates a jaccard index heatmap image that compares all the nodes similarity between each dataset and the gold standard
+        Returns output back to output_png
+        @param file_paths: file paths of pathway reconstruction algorithm outputs
+        @param node_table: the gold standard nodes
+        @param output_png (optional): the filename to plot the heatmap (not a PRC)
+        """
+        gs_nodes = set(node_table['NODEID'])
+        # calculate all the jaccard node index for each method against the gold standard
+        jaccard_node_indices_list = []
+        algorithms = []
+        for file in file_paths:
+            df = pd.read_table(file, sep="\t", header=0, usecols=["Node1", "Node2"])
+            method_nodes = set()
+            for row in df.itertuples():
+                if row[1] not in method_nodes:
+                    method_nodes.add(row[1])
+                if row[2] not in method_nodes:
+                    method_nodes.add(row[2])
+            node_union = gs_nodes | method_nodes
+            node_intersection = gs_nodes & method_nodes
+            jaccard_node_index = len(node_intersection) / len(node_union)
+            jaccard_node_indices_list.append(float(jaccard_node_index))
+            algorithms.append(file.split("/")[1].split("-")[1])
+
+        jaccard_node_indices = np.asanyarray([jaccard_node_indices_list])
+
+        plt.figure(figsize=(10, 8))
+        sns.heatmap(
+            jaccard_node_indices,
+            annot=True,
+            cmap="viridis",
+            xticklabels=algorithms,
+            yticklabels=[""],
+        )
+        plt.xlabel("Algorithms")
+        plt.ylabel("Pathways")
+        plt.title("Jaccard Index Nodes Heatmap")
+        plt.tick_params(axis='x', which='major', labelsize=7.5)
+        plt.savefig(output_png, format="png", dpi=300)
 
     def select_max_freq_and_node(row: pd.Series):
         """

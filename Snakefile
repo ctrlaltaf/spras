@@ -396,7 +396,7 @@ rule evaluation:
         pr_curve_png = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', 'precision-recall-curve-ensemble-nodes.png']),
         pca_chosen_pr_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "precision-recall-pca-chosen-pathway.txt"]),
         heatmap_edge_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "jaccard_edge_heatmap.png"]),
-
+        heatmap_node_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "jaccard_node_heatmap.png"]),
     run:
         node_table = Evaluation.from_file(input.gold_standard_file).node_table
         edge_table = Evaluation.from_file(input.gold_standard_file).edge_table
@@ -406,7 +406,8 @@ rule evaluation:
         Evaluation.precision_recall_curve_node_ensemble(node_ensemble, node_table, output.pr_curve_png)
         pca_chosen_pathway = Evaluation.pca_chosen_pathway(input.pca_coordinates_file, out_dir)
         Evaluation.precision_and_recall_node(pca_chosen_pathway, node_table, algorithms, output.pca_chosen_pr_file)
-        Evaluation.jaccard_edge_heatmap(input.pathways, edge_table, algorithms, output.pr_edge_file, output.heatmap_edge_file)
+        Evaluation.jaccard_edge_heatmap(input.pathways, edge_table, output.heatmap_edge_file)
+        Evaluation.jaccard_node_heatmap(input.pathways, node_table, output.heatmap_node_file)
 
 
 # Returns all pathways for a specific algorithm and dataset
