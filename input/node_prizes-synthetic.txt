@@ -1,0 +1,6 @@
+NODEID	prize	active
+A	2	true
+C	5.7 true
+E	2.7 true
+G	1.7 true
+D	13.7    true
