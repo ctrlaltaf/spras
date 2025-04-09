@@ -8,13 +8,14 @@ import pandas as pd
 
 
 def summarize_networks(file_paths: Iterable[Path], node_table: pd.DataFrame) -> pd.DataFrame:
-    """
+    """`
     Generate a table that aggregates summary information about networks in file_paths,
     including which nodes are present in node_table columns.
     @param file_paths: iterable of edge list files
     @param node_table: pandas DataFrame containing node attributes
     @return: pandas DataFrame with summary information
     """
+    print("summarizing network")
     # Ensure that NODEID is the first column
     assert node_table.columns[0] == "NODEID"
     # Initialize list to store input nodes that have property data
@@ -66,6 +67,7 @@ def summarize_networks(file_paths: Iterable[Path], node_table: pd.DataFrame) -> 
                 +
                 nodes_by_col_labs
     )
+    print("completed sumamry")
     return nw_info
 
 

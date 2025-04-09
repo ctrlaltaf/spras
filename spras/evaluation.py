@@ -17,7 +17,7 @@ class Evaluation:
         self.label = None
         self.datasets = None
         self.node_table = None
-        self.edge_table = None
+        # self.edge_table = None
         self.load_files_from_dict(gold_standard_dict)
         return
 
@@ -73,9 +73,11 @@ class Evaluation:
         # if yes, a for loop is needed
 
         # TODO: later iteration - chose between node and edge file, or allow both
-        edge_data_files = gold_standard_dict["edge_files"][0]
-        single_edge_table = pd.read_table(os.path.join(data_loc, edge_data_files), header=None)
-        self.edge_table = single_edge_table
+
+        # if there is no edge file speecified here, will break.
+        # edge_data_files = gold_standard_dict["edge_files"][0]
+        # single_edge_table = pd.read_table(os.path.join(data_loc, edge_data_files), header=None)
+        # self.edge_table = single_edge_table
 
     # will probably need to split the precision and recall
     @staticmethod
@@ -90,6 +92,7 @@ class Evaluation:
         @param output_file: the filename to save the precision and recall of each pathway
         @param output_png (optional): the filename to plot the precision and recall of each pathway (not a PRC)
         """
+        print("EDGE TABLE PRECISION AND RECALL")
         y_true = set()
         for row in edge_table.itertuples():
             y_true.add((row[1], row[2]))
