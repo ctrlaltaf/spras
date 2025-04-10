@@ -377,10 +377,15 @@ rule evaluation:
     input: 
         gold_standard_file = get_gold_standard_pickle_file,
         pathways = expand('{out_dir}{sep}{dataset_label}-{algorithm_params}{sep}pathway.txt', out_dir=out_dir, sep=SEP, algorithm_params=algorithms_with_params, dataset_label=get_dataset_label),
-    output: eval_file = SEP.join([out_dir, "{dataset_gold_standard_pairs}-evaluation.txt"])
+    output: 
+        eval_file = SEP.join([out_dir, "{dataset_gold_standard_pairs}-evaluation.txt"]),
+        pr_edge_file = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', "precision-recall-per-pathway_edge.txt"]),
+        pr_edge_png = SEP.join([out_dir, '{dataset_gold_standard_pairs}-eval', 'precision-recall-per-pathway_edge.png'])
     run:
         node_table = Evaluation.from_file(input.gold_standard_file).node_table
+        edge_table = Evaluation.from_file(input.gold_standard_file).edge_table
         Evaluation.precision(input.pathways, node_table, output.eval_file)
+        Evaluation.precision_and_recall_edge(input.pathways, edge_table, algorithms, output.pr_edge_file, output.pr_edge_png)
 
 # Remove the output directory
 rule clean:
