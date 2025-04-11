@@ -104,7 +104,7 @@ class Evaluation:
         precision_df = pd.DataFrame(results)
         precision_df.to_csv(output_file, sep="\t", index=False)
 
-# will probably need to split the precision and recall
+    # will probably need to split the precision and recall
     @staticmethod
     def precision_and_recall_edge(file_paths: Iterable[Path], edge_table: pd.DataFrame, algorithms: list, output_file: str, output_png:str=None):
         """
@@ -117,19 +117,30 @@ class Evaluation:
         @param output_file: the filename to save the precision and recall of each pathway
         @param output_png (optional): the filename to plot the precision and recall of each pathway (not a PRC)
         """
-        print("EDGE TABLE PRECISION AND RECALL")
+        print("EDGE PR")
+        algorithm_directionality_dict = {"pathlinker": "U", "omicsintegrator1": "D"}
+
         y_true = set()
         for row in edge_table.itertuples():
             y_true.add((row[1], row[2]))
         results = []
         for file in file_paths:
+            algorithm = file.split("/")[1].split("-")[1]
             df = pd.read_table(file, sep="\t", header=0, usecols=["Node1", "Node2"])
             y_pred = set()
             for row in df.itertuples():
                 y_pred.add((row[1], row[2]))
             all_edges = set(y_true.union(y_pred))
-            y_true_binary = [1 if (edge[0], edge[1]) in y_true or (edge[1], edge[0]) in y_true else 0 for edge in all_edges]
-            y_pred_binary = [1 if (edge[0], edge[1]) in y_pred or (edge[1], edge[0]) in y_pred else 0 for edge in all_edges]
+
+            y_true_binary = []
+            y_pred_binary = []
+            if algorithm_directionality_dict[algorithm] == "U":
+                y_true_binary = [1 if (edge[0], edge[1]) in y_true or (edge[1], edge[0]) in y_true else 0 for edge in all_edges]
+                y_pred_binary = [1 if (edge[0], edge[1]) in y_pred or (edge[1], edge[0]) in y_pred else 0 for edge in all_edges]
+            else:
+                y_true_binary = [1 if (edge[0], edge[1]) in y_true else 0 for edge in all_edges]
+                y_pred_binary = [1 if (edge[0], edge[1]) in y_pred else 0 for edge in all_edges]
+
             precision = precision_score(y_true_binary, y_pred_binary, zero_division=0.0)
             recall = recall_score(y_true_binary, y_pred_binary, zero_division=0.0)
             results.append({"Pathway": file, "Precision": precision, "Recall": recall})
@@ -182,6 +193,9 @@ class Evaluation:
         @param edge_table: the gold standard edges
         @param output_png (optional): the filename to plot the heatmap (not a PRC)
         """
+        print("JACCARD INDEX")
+        algorithm_directionality_dict = {"pathlinker": "U", "omicsintegrator1": "D"}
+
         gs_edges = set()
         for row in edge_table.itertuples():
             gs_edges.add((row[1], row[2]))
@@ -190,15 +204,20 @@ class Evaluation:
         jaccard_edge_indices_list = []
         algorithms = []
         for file in file_paths:
+            algorithm = file.split("/")[1].split("-")[1]
             df = pd.read_table(file, sep="\t", header=0, usecols=["Node1", "Node2"])
             method_edges = set()
             for row in df.itertuples():
-                method_edges.add((row[1], row[2]))
+                if algorithm_directionality_dict[algorithm] == "U":
+                    method_edges.add((row[1], row[2]))
+                    method_edges.add((row[2], row[1]))
+                else:
+                    method_edges.add((row[1], row[2]))
             edge_union = gs_edges | method_edges
             edge_intersection = gs_edges & method_edges
             jaccard_edge_index = len(edge_intersection) / len(edge_union)
             jaccard_edge_indices_list.append(float(jaccard_edge_index))
-            algorithms.append(file.split("/")[1].split("-")[1])
+            algorithms.append(f"{file.split('/')[1].split('-')[1]}-{file.split('/')[1].split('-')[3]}")
 
         jaccard_edge_indices = np.asanyarray([jaccard_edge_indices_list])
 
