@@ -118,14 +118,14 @@ class Evaluation:
         @param output_png (optional): the filename to plot the precision and recall of each pathway (not a PRC)
         """
         print("EDGE PR")
-        algorithm_directionality_dict = {"pathlinker": "U", "omicsintegrator1": "D"}
+        algorithm_directionality_dict = {"pathlinker": "U", "omicsintegrator1": "D", "omicsintegrator2": "D"}
 
         y_true = set()
         for row in edge_table.itertuples():
             y_true.add((row[1], row[2]))
         results = []
         for file in file_paths:
-            algorithm = file.split("/")[1].split("-")[1]
+            algorithm = file.split("/")[2].split("-")[1] #TODO: better way to extract algorithm.
             df = pd.read_table(file, sep="\t", header=0, usecols=["Node1", "Node2"])
             y_pred = set()
             for row in df.itertuples():
@@ -194,7 +194,7 @@ class Evaluation:
         @param output_png (optional): the filename to plot the heatmap (not a PRC)
         """
         print("JACCARD INDEX")
-        algorithm_directionality_dict = {"pathlinker": "U", "omicsintegrator1": "D"}
+        algorithm_directionality_dict = {"pathlinker": "U", "omicsintegrator1": "D", "omicsintegrator2": "D"}
 
         gs_edges = set()
         for row in edge_table.itertuples():
@@ -204,7 +204,7 @@ class Evaluation:
         jaccard_edge_indices_list = []
         algorithms = []
         for file in file_paths:
-            algorithm = file.split("/")[1].split("-")[1]
+            algorithm = file.split("/")[2].split("-")[1]  #TODO: better way to extract algorithm 
             df = pd.read_table(file, sep="\t", header=0, usecols=["Node1", "Node2"])
             method_edges = set()
             for row in df.itertuples():
@@ -217,7 +217,7 @@ class Evaluation:
             edge_intersection = gs_edges & method_edges
             jaccard_edge_index = len(edge_intersection) / len(edge_union)
             jaccard_edge_indices_list.append(float(jaccard_edge_index))
-            algorithms.append(f"{file.split('/')[1].split('-')[1]}-{file.split('/')[1].split('-')[3]}")
+            algorithms.append(file)
 
         jaccard_edge_indices = np.asanyarray([jaccard_edge_indices_list])
 
